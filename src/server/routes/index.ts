@@ -1,14 +1,11 @@
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { CitiesController } from '../../controllers';
 
 const router = Router();
 
 router.get('/', (_, res) => res.status(StatusCodes.OK).send('Hi!'));
 
-router.get('/test', (req, res) => {
-  console.log(req);
-
-  return res.status(StatusCodes.OK).json(req.body);
-});
+router.post('/cities', CitiesController.create);
 
 export { router };
