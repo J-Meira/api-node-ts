@@ -1,8 +1,15 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ICities } from '../../types';
+import { ICityCreate } from '../../types';
+import { validation } from '../../utils/middleware';
+import { cityCreateSchema } from '../../utils/schemas';
 
-export const create = (req: Request<{}, {}, ICities>, res: Response) => {
-  console.log(req.body.name);
+export const createValidation = validation({ body: cityCreateSchema });
+
+export const create = async (
+  req: Request<{}, {}, ICityCreate>,
+  res: Response,
+) => {
+  console.log(req.body);
   return res.status(StatusCodes.CREATED).send('created!');
 };
