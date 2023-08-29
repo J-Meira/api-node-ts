@@ -17,3 +17,6 @@ yarn-error.log*
 
 # local SSL
 /.ssl
+
+# prod
+/build

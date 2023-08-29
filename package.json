@@ -21,6 +21,8 @@
     "typescript": "^5.2.2"
   },
   "scripts": {
+    "build": "yarn clean && tsc",
+    "clean": "node clean.ts",
     "start": "ts-node-dev ./src/index.ts"
   }
 }
