@@ -1,4 +1,4 @@
-export interface ICityCreate {
+export interface ICityDTO {
   name: string;
-  id: number;
+  stateId: number;
 }
