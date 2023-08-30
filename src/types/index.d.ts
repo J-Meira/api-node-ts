@@ -1,4 +1,5 @@
 export * from './Cities';
+export * from './Knex';
 export * from './Validation';
 
 export type TOrder = 'asc' | 'desc';
