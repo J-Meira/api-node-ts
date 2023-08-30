@@ -15,9 +15,7 @@ export const create = async (
   res: Response,
 ) => {
   console.log(req.body);
-  return res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send('in progress!');
+  return res.status(StatusCodes.CREATED).json({ id: 1 });
 };
 
 export const deleteByIdValidation = validation({
@@ -29,9 +27,11 @@ export const deleteById = async (
   res: Response,
 ) => {
   console.log(req.params);
-  return res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send('in progress!');
+  if (Number(req.params.id) === 99999)
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ errors: ['Not Found'] });
+  return res.status(StatusCodes.NO_CONTENT).end();
 };
 
 export const getAllValidation = validation({
@@ -43,9 +43,15 @@ export const getAll = async (
   res: Response,
 ) => {
   console.log(req.query);
-  return res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send('in progress!');
+  return res.status(StatusCodes.OK).json({
+    records: [
+      {
+        name: 'New York',
+        stateId: 1,
+      },
+    ],
+    totalOfRecords: 1,
+  });
 };
 
 export const getByIdValidation = validation({
@@ -54,9 +60,14 @@ export const getByIdValidation = validation({
 
 export const getById = async (req: Request<IIdParam>, res: Response) => {
   console.log(req.params);
-  return res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send('in progress!');
+  if (Number(req.params.id) === 99999)
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ errors: ['Not Found'] });
+  return res.status(StatusCodes.OK).json({
+    name: 'New York',
+    stateId: 1,
+  });
 };
 
 export const updateByIdValidation = validation({
@@ -70,9 +81,11 @@ export const updateById = async (
 ) => {
   console.log(req.body);
   console.log(req.params);
-  return res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send('in progress!');
+  if (Number(req.params.id) === 99999)
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ errors: ['Not Found'] });
+  return res.status(StatusCodes.NO_CONTENT).end();
 };
 
 export const CitiesController = {

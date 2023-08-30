@@ -2,7 +2,7 @@ import { ObjectSchema, mixed, number, object, string } from 'yup';
 import { ICityDTO, IGetAllQuery, IIdParam, TOrder } from '../../types';
 
 export const citySchema: ObjectSchema<ICityDTO> = object({
-  name: string().required().min(3).max(150),
+  name: string().required().min(3).max(60),
   stateId: number().integer().required().min(1),
 });
 

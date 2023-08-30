@@ -9,5 +9,11 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "exclude": ["clean.ts"]
+  "exclude": [
+    "./clean.ts",
+    "./jest.config.ts",
+    "./node_modules",
+    "./tests",
+    "./build"
+  ]
 }

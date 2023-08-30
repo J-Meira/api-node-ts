@@ -2,6 +2,7 @@ export * from './Cities';
 export * from './Validation';
 
 export type TOrder = 'asc' | 'desc';
+
 export interface IGetAllQuery {
   page?: number;
   limit?: number;
@@ -12,4 +13,8 @@ export interface IGetAllQuery {
 }
 export interface IIdParam {
   id?: number;
+}
+
+export interface ICreateUpdateRDTO {
+  id: number;
 }
