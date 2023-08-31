@@ -33,6 +33,10 @@
     "build": "yarn clean && tsc",
     "clean": "node clean.ts",
     "start": "ts-node-dev ./src/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "knex:migrate": "knex --knexfile ./knex.env.ts migrate:latest",
+    "knex:rollback": "knex --knexfile ./knex.env.ts migrate:rollback",
+    "knex:rollback-all": "knex --knexfile ./knex.env.ts migrate:rollback --all",
+    "knex:seed": "knex --knexfile ./knex.env.ts seed:run"
   }
 }
