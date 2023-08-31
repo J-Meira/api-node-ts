@@ -1,15 +1,7 @@
 import { knex } from 'knex';
-import { development, production, test } from './Environment';
 
-const getEnvironment = () => {
-  switch (process.env.NODE_ENV) {
-    case 'production':
-      return production;
-    case 'test':
-      return test;
-    default:
-      return development;
-  }
-};
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const knexEnv = require('../../../knex.env');
+const env = process.env.NODE_ENV || 'development';
 
-export const Knex = knex(getEnvironment());
+export const Knex = knex(knexEnv[env]);
