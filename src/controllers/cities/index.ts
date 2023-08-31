@@ -7,6 +7,7 @@ import {
   getAllSchema,
   idParamSchema,
 } from '../../utils/schemas';
+import { CitiesProvider } from '../../database/providers';
 
 export const createValidation = validation({ body: citySchema });
 
@@ -14,8 +15,15 @@ export const create = async (
   req: Request<{}, {}, ICityDTO>,
   res: Response,
 ) => {
-  console.log(req.body);
-  return res.status(StatusCodes.CREATED).json({ id: 1 });
+  const result = await CitiesProvider.create(req.body);
+  if (result instanceof Error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ errors: [result.message] });
+  } else {
+    console.log(result);
+    return res.status(StatusCodes.CREATED).json({ id: result });
+  }
 };
 
 export const deleteByIdValidation = validation({
