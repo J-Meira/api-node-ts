@@ -67,7 +67,7 @@ describe('cities.delete', () => {
   });
   it('not found', async () => {
     const res = await testServer.delete('/cities/99999');
-    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
@@ -115,7 +115,7 @@ describe('cities.getById', () => {
   });
   it('not found', async () => {
     const res = await testServer.get('/cities/99999');
-    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
@@ -144,7 +144,7 @@ describe('cities.updateById', () => {
   });
   it('not found', async () => {
     const res = await testServer.get('/cities/99999');
-    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });

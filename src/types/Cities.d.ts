@@ -5,3 +5,8 @@ export interface ICity {
 }
 
 export interface ICityDTO extends Omit<ICity, 'id'> {}
+
+export interface ICitiesRDTO {
+  records: ICity[];
+  totalOfRecords: number;
+}
