@@ -1,8 +1,8 @@
-import { ICity } from './Cities';
+import { ICity, IClient } from './';
 declare module 'knex/types/tables' {
   interface Tables {
     cities: ICity;
-    // client: IClient
+    client: IClient;
     // state: IState
     // user: IUser
   }

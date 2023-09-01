@@ -4,6 +4,8 @@ export interface ICity {
   stateId: number;
 }
 
+export type TKCity = keyof ICity;
+
 export interface ICityDTO extends Omit<ICity, 'id'> {}
 
 export interface ICitiesRDTO {

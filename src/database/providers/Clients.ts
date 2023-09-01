@@ -3,7 +3,12 @@ import { StatusCodes } from 'http-status-codes';
 import { Knex } from '../knex';
 
 import { StatusError } from '../../models';
-import { ICity, ICityDTO, ICreateRDTO, IGetAllQuery } from '../../types';
+import {
+  IClient,
+  IClientDTO,
+  ICreateRDTO,
+  IGetAllQuery,
+} from '../../types';
 
 import { ETableNames } from '../ETableNames';
 
@@ -11,8 +16,9 @@ const count = async (
   query: IGetAllQuery,
 ): Promise<number | StatusError> => {
   try {
-    const [{ count }] = await Knex(ETableNames.cities)
+    const [{ count }] = await Knex(ETableNames.clients)
       .where('name', 'like', `%${query.filter || ''}%`)
+      .orWhere('email', 'like', `%${query.filter || ''}%`)
       .count<[{ count: number }]>('* as count');
 
     return Number.isInteger(Number(count)) ? Number(count) : 0;
@@ -26,10 +32,10 @@ const count = async (
 };
 
 const create = async (
-  city: ICityDTO,
+  city: IClientDTO,
 ): Promise<ICreateRDTO | StatusError> => {
   try {
-    const [result] = await Knex(ETableNames.cities).insert(city);
+    const [result] = await Knex(ETableNames.clients).insert(city);
     return { id: result };
   } catch (error) {
     console.error(error);
@@ -42,7 +48,7 @@ const create = async (
 
 const deleteById = async (id: number): Promise<void | StatusError> => {
   try {
-    await Knex(ETableNames.cities).del().where('id', id);
+    await Knex(ETableNames.clients).del().where('id', id);
   } catch (error) {
     console.error(error);
     return new StatusError(
@@ -54,20 +60,21 @@ const deleteById = async (id: number): Promise<void | StatusError> => {
 
 const getAll = async (
   query: IGetAllQuery,
-): Promise<ICity[] | StatusError> => {
+): Promise<IClient[] | StatusError> => {
   try {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const result = await Knex.select('*')
-      .from(ETableNames.cities)
+      .from(ETableNames.clients)
       .where('id', query.id || 0)
       .orWhere('name', 'like', `%${query.filter || ''}%`)
+      .orWhere('email', 'like', `%${query.filter || ''}%`)
       .offset((page - 1) * limit)
       .limit(limit)
       .orderBy(query.orderBy || 'name', query.order);
 
     if (query.id && result.every((item) => item.id !== query.id)) {
-      const resultById = await Knex(ETableNames.cities)
+      const resultById = await Knex(ETableNames.clients)
         .select('*')
         .where('id', query.id)
         .first();
@@ -85,10 +92,10 @@ const getAll = async (
   }
 };
 
-const getById = async (id: number): Promise<ICity | StatusError> => {
+const getById = async (id: number): Promise<IClient | StatusError> => {
   try {
     const result = await Knex.select('*')
-      .from(ETableNames.cities)
+      .from(ETableNames.clients)
       .where('id', id)
       .first();
     return result
@@ -105,10 +112,10 @@ const getById = async (id: number): Promise<ICity | StatusError> => {
 
 const updateById = async (
   id: number,
-  city: ICityDTO,
+  city: IClientDTO,
 ): Promise<void | StatusError> => {
   try {
-    await Knex(ETableNames.cities).update(city).where('id', id);
+    await Knex(ETableNames.clients).update(city).where('id', id);
   } catch (error) {
     console.error(error);
     return new StatusError(
@@ -118,7 +125,7 @@ const updateById = async (
   }
 };
 
-export const CitiesProvider = {
+export const ClientsProvider = {
   count,
   create,
   deleteById,

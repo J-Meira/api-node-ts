@@ -1,9 +1,21 @@
 import { ObjectSchema, mixed, number, object, string } from 'yup';
-import { ICityDTO, IGetAllQuery, IIdParam, TOrder } from '../../types';
+import {
+  ICityDTO,
+  IClientDTO,
+  IGetAllQuery,
+  IIdParam,
+  TOrder,
+} from '../../types';
 
 export const citySchema: ObjectSchema<ICityDTO> = object({
   name: string().required().min(3).max(60),
   stateId: number().integer().required().min(1),
+});
+
+export const clientSchema: ObjectSchema<IClientDTO> = object({
+  name: string().required().min(3).max(150),
+  email: string().email().required(),
+  cityId: number().integer().required().min(1),
 });
 
 export const idParamSchema: ObjectSchema<IIdParam> = object({

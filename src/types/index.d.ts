@@ -1,4 +1,5 @@
 export * from './Cities';
+export * from './Clients';
 export * from './CreateRDTO';
 export * from './Errors';
 export * from './GetAllQuery';

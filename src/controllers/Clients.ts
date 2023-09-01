@@ -2,12 +2,16 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { StatusError } from '../models';
-import { ICityDTO, IGetAllQuery, IIdParam, TKCity } from '../types';
+import { IClientDTO, IGetAllQuery, IIdParam, TKClient } from '../types';
 
-import { CitiesProvider } from '../database/providers';
+import { ClientsProvider } from '../database/providers';
 
 import { handleErrors, validation } from '../utils/middleware';
-import { citySchema, getAllSchema, idParamSchema } from '../utils/schemas';
+import {
+  clientSchema,
+  getAllSchema,
+  idParamSchema,
+} from '../utils/schemas';
 
 const handleIdParams = (res: Response) =>
   handleErrors(
@@ -15,10 +19,10 @@ const handleIdParams = (res: Response) =>
     res,
   );
 
-const createValidation = validation({ body: citySchema });
+const createValidation = validation({ body: clientSchema });
 
-const create = async (req: Request<{}, {}, ICityDTO>, res: Response) => {
-  const result = await CitiesProvider.create(req.body);
+const create = async (req: Request<{}, {}, IClientDTO>, res: Response) => {
+  const result = await ClientsProvider.create(req.body);
   if (result instanceof StatusError) {
     return handleErrors(result, res);
   } else {
@@ -33,9 +37,9 @@ const deleteByIdValidation = validation({
 const deleteById = async (req: Request<IIdParam>, res: Response) => {
   if (!req.params.id) return handleIdParams(res);
 
-  const test = await CitiesProvider.getById(req.params.id);
+  const test = await ClientsProvider.getById(req.params.id);
   if (!(test instanceof StatusError)) {
-    const result = await CitiesProvider.deleteById(req.params.id);
+    const result = await ClientsProvider.deleteById(req.params.id);
 
     if (result instanceof StatusError) {
       return handleErrors(result, res);
@@ -47,7 +51,7 @@ const deleteById = async (req: Request<IIdParam>, res: Response) => {
   }
 };
 
-const orderKeys: TKCity[] = ['id', 'name', 'stateId'];
+const orderKeys: TKClient[] = ['id', 'name', 'email', 'cityId'];
 
 const getAllValidation = validation({
   query: getAllSchema(orderKeys),
@@ -57,8 +61,8 @@ const getAll = async (
   req: Request<{}, {}, {}, IGetAllQuery>,
   res: Response,
 ) => {
-  const result = await CitiesProvider.getAll(req.query);
-  const count = await CitiesProvider.count(req.query);
+  const result = await ClientsProvider.getAll(req.query);
+  const count = await ClientsProvider.count(req.query);
   if (result instanceof StatusError) {
     return handleErrors(result, res);
   } else if (count instanceof StatusError) {
@@ -78,7 +82,7 @@ const getByIdValidation = validation({
 const getById = async (req: Request<IIdParam>, res: Response) => {
   if (!req.params.id) return handleIdParams(res);
 
-  const result = await CitiesProvider.getById(req.params.id);
+  const result = await ClientsProvider.getById(req.params.id);
   if (result instanceof StatusError) {
     return handleErrors(result, res);
   } else {
@@ -88,20 +92,20 @@ const getById = async (req: Request<IIdParam>, res: Response) => {
 
 const updateByIdValidation = validation({
   params: idParamSchema,
-  body: citySchema,
+  body: clientSchema,
 });
 
 const updateById = async (
-  req: Request<IIdParam, {}, ICityDTO>,
+  req: Request<IIdParam, {}, IClientDTO>,
   res: Response,
 ) => {
   if (!req.params.id) return handleIdParams(res);
 
   console.log(req.body);
   console.log(req.params);
-  const test = await CitiesProvider.getById(req.params.id);
+  const test = await ClientsProvider.getById(req.params.id);
   if (!(test instanceof StatusError)) {
-    const result = await CitiesProvider.updateById(
+    const result = await ClientsProvider.updateById(
       req.params.id,
       req.body,
     );
@@ -116,7 +120,7 @@ const updateById = async (
   }
 };
 
-export const CitiesController = {
+export const ClientsController = {
   create,
   createValidation,
   deleteById,
