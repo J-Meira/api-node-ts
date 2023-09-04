@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Knex } from '../knex';
 
 import { StatusError } from '../../models';
-import { ICity, ICityDTO, ICreateRDTO, IGetAllQuery } from '../../types';
+import { IUser, IUserDTO, ICreateRDTO, IGetAllQuery } from '../../types';
 
 import { ETableNames } from '../ETableNames';
 
@@ -11,8 +11,9 @@ const count = async (
   query: IGetAllQuery,
 ): Promise<number | StatusError> => {
   try {
-    const [{ count }] = await Knex(ETableNames.cities)
+    const [{ count }] = await Knex(ETableNames.users)
       .where('name', 'like', `%${query.filter || ''}%`)
+      .orWhere('email', 'like', `%${query.filter || ''}%`)
       .count<[{ count: number }]>('* as count');
 
     return Number.isInteger(Number(count)) ? Number(count) : 0;
@@ -26,27 +27,26 @@ const count = async (
 };
 
 const create = async (
-  data: ICityDTO,
+  data: IUserDTO,
 ): Promise<ICreateRDTO | StatusError> => {
   try {
-    const [result] = await Knex(ETableNames.cities).insert(data);
+    const [{ count }] = await Knex(ETableNames.users)
+      .where('email', '=', data.email)
+      .count<[{ count: number }]>('* as count');
+
+    if (count > 0) {
+      return new StatusError(
+        'Email has already been registered',
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    const [result] = await Knex(ETableNames.users).insert(data);
     return { id: result };
   } catch (error) {
     console.error(error);
     return new StatusError(
       'An internal error occurred while creating the record',
-      500,
-    );
-  }
-};
-
-const deleteById = async (id: number): Promise<void | StatusError> => {
-  try {
-    await Knex(ETableNames.cities).del().where('id', id);
-  } catch (error) {
-    console.error(error);
-    return new StatusError(
-      'An internal error occurred while deleting the record',
       StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
@@ -54,20 +54,21 @@ const deleteById = async (id: number): Promise<void | StatusError> => {
 
 const getAll = async (
   query: IGetAllQuery,
-): Promise<ICity[] | StatusError> => {
+): Promise<IUser[] | StatusError> => {
   try {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const result = await Knex.select('*')
-      .from(ETableNames.cities)
+      .from(ETableNames.users)
       .where('id', query.id || 0)
       .orWhere('name', 'like', `%${query.filter || ''}%`)
+      .orWhere('email', 'like', `%${query.filter || ''}%`)
       .offset((page - 1) * limit)
       .limit(limit)
       .orderBy(query.orderBy || 'name', query.order);
 
     if (query.id && result.every((item) => item.id !== query.id)) {
-      const resultById = await Knex(ETableNames.cities)
+      const resultById = await Knex(ETableNames.users)
         .select('*')
         .where('id', query.id)
         .first();
@@ -85,10 +86,10 @@ const getAll = async (
   }
 };
 
-const getById = async (id: number): Promise<ICity | StatusError> => {
+const getById = async (id: number): Promise<IUser | StatusError> => {
   try {
     const result = await Knex.select('*')
-      .from(ETableNames.cities)
+      .from(ETableNames.users)
       .where('id', id)
       .first();
 
@@ -104,12 +105,46 @@ const getById = async (id: number): Promise<ICity | StatusError> => {
   }
 };
 
+const getByEmail = async (email: string): Promise<IUser | StatusError> => {
+  try {
+    const result = await Knex.select('*')
+      .from(ETableNames.users)
+      .where('email', email)
+      .first();
+
+    if (result) return result;
+
+    return new StatusError(
+      'email or password are not valid',
+      StatusCodes.UNAUTHORIZED,
+    );
+  } catch (error) {
+    console.error(error);
+    return new StatusError(
+      'An internal error occurred while fetching the record',
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+};
+
 const updateById = async (
   id: number,
-  data: ICityDTO,
+  data: IUserDTO,
 ): Promise<void | StatusError> => {
   try {
-    await Knex(ETableNames.cities).update(data).where('id', id);
+    const [{ count }] = await Knex(ETableNames.users)
+      .where('email', '=', data.email)
+      .andWhereNot('id', id)
+      .count<[{ count: number }]>('* as count');
+
+    if (count > 0) {
+      return new StatusError(
+        'Email has already been registered',
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    await Knex(ETableNames.users).update(data).where('id', id);
   } catch (error) {
     console.error(error);
     return new StatusError(
@@ -119,11 +154,11 @@ const updateById = async (
   }
 };
 
-export const CitiesProvider = {
+export const UsersProvider = {
   count,
   create,
-  deleteById,
   getAll,
   getById,
+  getByEmail,
   updateById,
 };

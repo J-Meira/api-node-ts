@@ -5,4 +5,5 @@ export * from './Errors';
 export * from './GetAllQuery';
 export * from './IdParam';
 export * from './Knex';
+export * from './Users';
 export * from './Validation';

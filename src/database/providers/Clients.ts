@@ -120,9 +120,10 @@ const getById = async (id: number): Promise<IClient | StatusError> => {
       .from(ETableNames.clients)
       .where('id', id)
       .first();
-    return result
-      ? result
-      : new StatusError('Record Not Found', StatusCodes.BAD_REQUEST);
+
+    if (result) return result;
+
+    return new StatusError('Record Not Found', StatusCodes.BAD_REQUEST);
   } catch (error) {
     console.error(error);
     return new StatusError(
