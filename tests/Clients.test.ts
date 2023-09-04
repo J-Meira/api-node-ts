@@ -2,11 +2,20 @@ import { StatusCodes } from 'http-status-codes';
 import { testServer } from './jest.setup';
 
 describe('clients.create', () => {
+  let cityId: number | undefined = undefined;
+  beforeAll(async () => {
+    const resCity = await testServer.post('/cities').send({
+      name: 'Test City',
+      stateId: 1,
+    });
+    cityId = resCity.body.id;
+  });
+
   it('success', async () => {
     const res = await testServer.post('/clients').send({
-      name: 'John Doe',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'Create Client',
+      email: 'create.client@mail.com',
+      cityId,
     });
     expect(res.statusCode).toBe(StatusCodes.CREATED);
     expect(res.body).toHaveProperty('id');
@@ -14,16 +23,69 @@ describe('clients.create', () => {
   });
   it('without name', async () => {
     const res = await testServer.post('/clients').send({
-      cityId: 1,
+      email: 'create.client@mail.com',
+      cityId,
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
-  it('without state', async () => {
+  it('without email', async () => {
     const res = await testServer.post('/clients').send({
-      name: 'John Doe',
-      email: 'john.doe@mail.com',
+      name: 'Create Client',
+      cityId,
+    });
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
+  it('invalid email', async () => {
+    const res = await testServer.post('/clients').send({
+      name: 'Create Client',
+      email: 'create.client',
+      cityId,
+    });
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
+  it('with email already registered', async () => {
+    const resCreate = await testServer.post('/clients').send({
+      name: 'Create Client',
+      email: 'create.client.same@mail.com',
+      cityId,
+    });
+    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
+
+    const res = await testServer.post('/clients').send({
+      name: 'Create Client',
+      email: 'create.client.same@mail.com',
+      cityId,
+    });
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
+  it('without city', async () => {
+    const res = await testServer.post('/clients').send({
+      name: 'Create Client',
+      email: 'create.client@mail.com',
+    });
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
+  it('without body', async () => {
+    const res = await testServer.post('/clients').send({});
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(3);
+  });
+  it('with unknown city', async () => {
+    const res = await testServer.post('/clients').send({
+      name: 'Create Client',
+      email: 'create.client@mail.com',
+      cityId: 9999,
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
@@ -31,9 +93,9 @@ describe('clients.create', () => {
   });
   it('name to short', async () => {
     const res = await testServer.post('/clients').send({
-      name: 'Ne',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'CC',
+      email: 'create.client@mail.com',
+      cityId,
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
@@ -41,9 +103,9 @@ describe('clients.create', () => {
   });
   it('name to long', async () => {
     const res = await testServer.post('/clients').send({
-      name: 'John Doe City is here hue hue hue hue hue hue hue hue hue hue',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'Create Client 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890',
+      email: 'create.client@mail.com',
+      cityId,
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
@@ -52,11 +114,20 @@ describe('clients.create', () => {
 });
 
 describe('clients.delete', () => {
+  let cityId: number | undefined = undefined;
+  beforeAll(async () => {
+    const resCity = await testServer.post('/cities').send({
+      name: 'Test City',
+      stateId: 1,
+    });
+    cityId = resCity.body.id;
+  });
+
   it('success', async () => {
     const resCreate = await testServer.post('/clients').send({
-      name: 'John Doe',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'Delete Client',
+      email: 'delete.client@mail.com',
+      cityId,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
@@ -83,11 +154,20 @@ describe('clients.delete', () => {
 });
 
 describe('clients.getAll', () => {
+  let cityId: number | undefined = undefined;
+  beforeAll(async () => {
+    const resCity = await testServer.post('/cities').send({
+      name: 'Test City',
+      stateId: 1,
+    });
+    cityId = resCity.body.id;
+  });
+
   it('success', async () => {
     const resCreate = await testServer.post('/clients').send({
-      name: 'John Doe',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'Get All Client',
+      email: 'get.all.client@mail.com',
+      cityId,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
@@ -101,18 +181,27 @@ describe('clients.getAll', () => {
 });
 
 describe('clients.getById', () => {
+  let cityId: number | undefined = undefined;
+  beforeAll(async () => {
+    const resCity = await testServer.post('/cities').send({
+      name: 'Test City',
+      stateId: 1,
+    });
+    cityId = resCity.body.id;
+  });
+
   it('success', async () => {
     const resCreate = await testServer.post('/clients').send({
-      name: 'John Doe',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'Get Client',
+      email: 'get.client@mail.com',
+      cityId,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
     const res = await testServer.get(`/clients/${resCreate.body.id}`);
     expect(res.statusCode).toBe(StatusCodes.OK);
-    expect(res.body).toHaveProperty('name', 'John Doe');
-    expect(res.body).toHaveProperty('cityId', 1);
+    expect(res.body).toHaveProperty('name', 'Get Client');
+    expect(res.body).toHaveProperty('cityId', cityId);
   });
   it('string param', async () => {
     const res = await testServer.get('/clients/string');
@@ -129,23 +218,58 @@ describe('clients.getById', () => {
 });
 
 describe('clients.updateById', () => {
+  let cityId: number | undefined = undefined;
+  beforeAll(async () => {
+    const resCity = await testServer.post('/cities').send({
+      name: 'Test City',
+      stateId: 1,
+    });
+    cityId = resCity.body.id;
+  });
+
   it('success', async () => {
     const resCreate = await testServer.post('/clients').send({
-      name: 'John Doe',
-      email: 'john.doe@mail.com',
-      cityId: 1,
+      name: 'Update Client',
+      email: 'update.client@mail.com',
+      cityId,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
     const res = await testServer
       .put(`/clients/${resCreate.body.id}`)
       .send({
-        name: 'John Doe City',
-        email: 'john.doe@mail.com',
-        cityId: 1,
+        name: 'Updated Client',
+        email: 'updated.client@mail.com',
+        cityId,
       });
     expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);
     expect(res.body).toStrictEqual({});
+  });
+  it('with email already registered', async () => {
+    const resCreate = await testServer.post('/clients').send({
+      name: 'Update Client',
+      email: 'update.client@mail.com',
+      cityId,
+    });
+    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
+
+    const resCreateNew = await testServer.post('/clients').send({
+      name: 'Update Client',
+      email: 'update.client.same@mail.com',
+      cityId,
+    });
+    expect(resCreateNew.statusCode).toBe(StatusCodes.CREATED);
+
+    const res = await testServer
+      .put(`/clients/${resCreate.body.id}`)
+      .send({
+        name: 'Updated Client',
+        email: 'update.client.same@mail.com',
+        cityId,
+      });
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
   });
   it('string param', async () => {
     const res = await testServer.get('/clients/string');
