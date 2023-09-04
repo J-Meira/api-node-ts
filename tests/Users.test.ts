@@ -105,29 +105,22 @@ describe('sign.up', () => {
 });
 
 describe('sign.in', () => {
-  it('success', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Sign Up User',
-      email: 'sign.up.user@mail.com',
+  beforeAll(async () => {
+    await testServer.post('/sign-up').send({
+      name: 'Sign In User',
+      email: 'sign.in.user@mail.com',
       password: '123456.sS',
     });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
+  });
+  it('success', async () => {
     const res = await testServer.post('/sign-in').send({
-      email: 'sign.up.user@mail.com',
+      email: 'sign.in.user@mail.com',
       password: '123456.sS',
     });
     expect(res.statusCode).toBe(StatusCodes.OK);
     expect(res.body).toHaveProperty('accessToken');
   });
   it('without email', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Sign Up User',
-      email: 'without.email@mail.com',
-      password: '123456.sS',
-    });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
     const res = await testServer.post('/sign-in').send({
       password: '123456.sS',
     });
@@ -136,41 +129,20 @@ describe('sign.in', () => {
     expect(res.body.errors.length).toBe(1);
   });
   it('without password', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Sign Up User',
-      email: 'without.password@mail.com',
-      password: '123456.sS',
-    });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
     const res = await testServer.post('/sign-in').send({
-      email: 'without.password@mail.com',
+      email: 'sign.in.user@mail.com',
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
   it('without body', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Sign Up User',
-      email: 'without.body@mail.com',
-      password: '123456.sS',
-    });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
     const res = await testServer.post('/sign-in').send({});
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(2);
   });
   it('invalid email', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Sign Up User',
-      email: 'invalid.email@mail.com',
-      password: '123456.sS',
-    });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
     const res = await testServer.post('/sign-in').send({
       email: 'invalid@mail.com',
       password: '123456.sS',
@@ -180,15 +152,8 @@ describe('sign.in', () => {
     expect(res.body.errors.length).toBe(1);
   });
   it('invalid password', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Sign Up User',
-      email: 'invalid.password@mail.com',
-      password: '123456.sS',
-    });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
     const res = await testServer.post('/sign-in').send({
-      email: 'invalid.password@mail.com',
+      email: 'sign.in.user@mail.com',
       password: '123456',
     });
     expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
