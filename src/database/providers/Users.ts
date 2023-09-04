@@ -6,6 +6,7 @@ import { StatusError } from '../../models';
 import { IUser, IUserDTO, ICreateRDTO, IGetAllQuery } from '../../types';
 
 import { ETableNames } from '../ETableNames';
+import { HashCrypto } from '../../utils/services';
 
 const count = async (
   query: IGetAllQuery,
@@ -41,7 +42,12 @@ const create = async (
       );
     }
 
-    const [result] = await Knex(ETableNames.users).insert(data);
+    const hashPassword = await HashCrypto.make(data.password);
+    const [result] = await Knex(ETableNames.users).insert({
+      ...data,
+      password: hashPassword,
+    });
+
     return { id: result };
   } catch (error) {
     console.error(error);

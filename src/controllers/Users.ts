@@ -19,6 +19,7 @@ import {
   idParamSchema,
   signInSchema,
 } from '../utils/schemas';
+import { HashCrypto } from '../utils/services';
 
 const handleIdParams = (res: Response) =>
   handleErrors(
@@ -111,20 +112,22 @@ const signIn = async (req: Request<{}, {}, ISignInDTO>, res: Response) => {
 
   if (result instanceof StatusError) {
     return handleErrors(result, res);
+  }
+
+  const passwordTest = await HashCrypto.verify(password, result.password);
+
+  if (!passwordTest) {
+    return handleErrors(
+      new StatusError(
+        'email or password are not valid',
+        StatusCodes.UNAUTHORIZED,
+      ),
+      res,
+    );
   } else {
-    if (result.password === password) {
-      return res
-        .status(StatusCodes.OK)
-        .json({ accessToken: 'test.test.test' });
-    } else {
-      return handleErrors(
-        new StatusError(
-          'email or password are not valid',
-          StatusCodes.UNAUTHORIZED,
-        ),
-        res,
-      );
-    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ accessToken: 'test.test.test' });
   }
 };
 
