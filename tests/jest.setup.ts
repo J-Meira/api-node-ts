@@ -5,6 +5,7 @@ import { Knex } from '../src/database/knex';
 
 beforeAll(async () => {
   await Knex.migrate.latest();
+  await Knex.seed.run();
 });
 
 export const testServer = supertest(server);

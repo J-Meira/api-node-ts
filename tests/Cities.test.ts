@@ -4,7 +4,7 @@ import { testServer } from './jest.setup';
 describe('cities.create', () => {
   it('success', async () => {
     const res = await testServer.post('/cities').send({
-      name: 'New York',
+      name: 'Create City',
       stateId: 1,
     });
     expect(res.statusCode).toBe(StatusCodes.CREATED);
@@ -21,7 +21,7 @@ describe('cities.create', () => {
   });
   it('without state', async () => {
     const res = await testServer.post('/cities').send({
-      name: 'New York',
+      name: 'Create City',
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
@@ -38,7 +38,7 @@ describe('cities.create', () => {
   });
   it('name to long', async () => {
     const res = await testServer.post('/cities').send({
-      name: 'New York City is here hue hue hue hue hue hue hue hue hue hue',
+      name: 'Create City 1234567890 1234567890 1234567890 1234567890 1234567890',
       stateId: 1,
     });
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
@@ -50,7 +50,7 @@ describe('cities.create', () => {
 describe('cities.delete', () => {
   it('success', async () => {
     const resCreate = await testServer.post('/cities').send({
-      name: 'New York',
+      name: 'Create City',
       stateId: 1,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
@@ -80,7 +80,7 @@ describe('cities.delete', () => {
 describe('cities.getAll', () => {
   it('success', async () => {
     const resCreate = await testServer.post('/cities').send({
-      name: 'New York',
+      name: 'Get All Cities',
       stateId: 1,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
@@ -97,14 +97,14 @@ describe('cities.getAll', () => {
 describe('cities.getById', () => {
   it('success', async () => {
     const resCreate = await testServer.post('/cities').send({
-      name: 'New York',
+      name: 'Get City',
       stateId: 1,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
     const res = await testServer.get(`/cities/${resCreate.body.id}`);
     expect(res.statusCode).toBe(StatusCodes.OK);
-    expect(res.body).toHaveProperty('name', 'New York');
+    expect(res.body).toHaveProperty('name', 'Get City');
     expect(res.body).toHaveProperty('stateId', 1);
   });
   it('string param', async () => {
@@ -124,13 +124,13 @@ describe('cities.getById', () => {
 describe('cities.updateById', () => {
   it('success', async () => {
     const resCreate = await testServer.post('/cities').send({
-      name: 'New York',
+      name: 'Update City',
       stateId: 1,
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
     const res = await testServer.put(`/cities/${resCreate.body.id}`).send({
-      name: 'New York City',
+      name: 'Updated City',
       stateId: 1,
     });
     expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);

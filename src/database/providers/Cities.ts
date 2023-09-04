@@ -26,10 +26,10 @@ const count = async (
 };
 
 const create = async (
-  city: ICityDTO,
+  data: ICityDTO,
 ): Promise<ICreateRDTO | StatusError> => {
   try {
-    const [result] = await Knex(ETableNames.cities).insert(city);
+    const [result] = await Knex(ETableNames.cities).insert(data);
     return { id: result };
   } catch (error) {
     console.error(error);
@@ -105,10 +105,10 @@ const getById = async (id: number): Promise<ICity | StatusError> => {
 
 const updateById = async (
   id: number,
-  city: ICityDTO,
+  data: ICityDTO,
 ): Promise<void | StatusError> => {
   try {
-    await Knex(ETableNames.cities).update(city).where('id', id);
+    await Knex(ETableNames.cities).update(data).where('id', id);
   } catch (error) {
     console.error(error);
     return new StatusError(
