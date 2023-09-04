@@ -32,16 +32,38 @@ const count = async (
 };
 
 const create = async (
-  city: IClientDTO,
+  data: IClientDTO,
 ): Promise<ICreateRDTO | StatusError> => {
   try {
-    const [result] = await Knex(ETableNames.clients).insert(city);
+    const [{ count }] = await Knex(ETableNames.cities)
+      .where('id', '=', data.cityId)
+      .count<[{ count: number }]>('* as count');
+
+    if (count === 0) {
+      return new StatusError(
+        'Record Not Found for "cityId"',
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    const [{ count2 }] = await Knex(ETableNames.clients)
+      .where('email', '=', data.email)
+      .count<[{ count2: number }]>('* as count2');
+
+    if (count2 > 0) {
+      return new StatusError(
+        'Email has already been registered',
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    const [result] = await Knex(ETableNames.clients).insert(data);
     return { id: result };
   } catch (error) {
     console.error(error);
     return new StatusError(
       'An internal error occurred while creating the record',
-      500,
+      StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
 };
@@ -112,10 +134,33 @@ const getById = async (id: number): Promise<IClient | StatusError> => {
 
 const updateById = async (
   id: number,
-  city: IClientDTO,
+  data: IClientDTO,
 ): Promise<void | StatusError> => {
   try {
-    await Knex(ETableNames.clients).update(city).where('id', id);
+    const [{ count }] = await Knex(ETableNames.cities)
+      .where('id', '=', data.cityId)
+      .count<[{ count: number }]>('* as count');
+
+    if (count === 0) {
+      return new StatusError(
+        'Record Not Found for "cityId"',
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    const [{ count2 }] = await Knex(ETableNames.clients)
+      .where('email', '=', data.email)
+      .andWhereNot('id', id)
+      .count<[{ count2: number }]>('* as count2');
+
+    if (count2 > 0) {
+      return new StatusError(
+        'Email has already been registered',
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    await Knex(ETableNames.clients).update(data).where('id', id);
   } catch (error) {
     console.error(error);
     return new StatusError(

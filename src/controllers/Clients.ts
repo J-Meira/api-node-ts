@@ -100,9 +100,6 @@ const updateById = async (
   res: Response,
 ) => {
   if (!req.params.id) return handleIdParams(res);
-
-  console.log(req.body);
-  console.log(req.params);
   const test = await ClientsProvider.getById(req.params.id);
   if (!(test instanceof StatusError)) {
     const result = await ClientsProvider.updateById(
