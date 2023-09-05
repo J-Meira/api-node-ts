@@ -1,14 +1,18 @@
 import { Knex } from './database/knex';
 import { server } from './server';
 
+const fs = require('fs');
+const https = require('https');
+
 const port = process.env.PORT || '3000';
 
-const startServer = () => {
-  server.listen(port, () => console.log(`Running on port: ${port}`));
-};
-
 if (process.env.IS_DEBUG) {
-  startServer();
+  const key = fs.readFileSync('./.ssl/cert.key');
+  const cert = fs.readFileSync('./.ssl/cert.crt');
+  const httpsServer = https.createServer({ key: key, cert: cert }, server);
+  httpsServer.listen(port, () => {
+    console.log(`Running HTTPS on port ${port}`);
+  });
 } else {
   console.log('Started migrations');
   Knex.migrate
@@ -16,7 +20,11 @@ if (process.env.IS_DEBUG) {
     .then(() => {
       Knex.seed
         .run()
-        .then(() => startServer())
+        .then(() =>
+          server.listen(port, () =>
+            console.log(`Running on port: ${port}`),
+          ),
+        )
         .catch(console.log);
     })
     .catch(console.log);
