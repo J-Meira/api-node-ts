@@ -171,7 +171,16 @@ describe('users.getAll', () => {
     });
     expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
 
-    const res = await testServer.get('/users');
+    let accessToken: string | undefined = undefined;
+    const signIn = await testServer.post('/sign-in').send({
+      email: 'get.all.user@mail.com',
+      password: '123456.sS',
+    });
+    accessToken = signIn.body.accessToken;
+
+    const res = await testServer
+      .get('/users')
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.OK);
     expect(res.body).toHaveProperty('records');
     expect(res.body.records.length).toBeGreaterThan(0);
@@ -181,26 +190,40 @@ describe('users.getAll', () => {
 });
 
 describe('users.getById', () => {
-  it('success', async () => {
+  let accessToken: string | undefined = undefined;
+  let userId: string | number | undefined = undefined;
+  beforeAll(async () => {
     const resCreate = await testServer.post('/sign-up').send({
       name: 'Get User',
       email: 'get.user@mail.com',
       password: '123456.sS',
     });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
-    const res = await testServer.get(`/users/${resCreate.body.id}`);
+    const signIn = await testServer.post('/sign-in').send({
+      email: 'get.user@mail.com',
+      password: '123456.sS',
+    });
+    userId = resCreate.body.id;
+    accessToken = signIn.body.accessToken;
+  });
+  it('success', async () => {
+    const res = await testServer
+      .get(`/users/${userId}`)
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.OK);
     expect(res.body).toHaveProperty('name', 'Get User');
   });
   it('string param', async () => {
-    const res = await testServer.get('/users/string');
+    const res = await testServer
+      .get('/users/string')
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
   it('not found', async () => {
-    const res = await testServer.get('/users/99999');
+    const res = await testServer
+      .get('/users/99999')
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
@@ -208,54 +231,68 @@ describe('users.getById', () => {
 });
 
 describe('users.updateById', () => {
-  it('success', async () => {
+  let accessToken: string | undefined = undefined;
+  let userId: string | number | undefined = undefined;
+  beforeAll(async () => {
     const resCreate = await testServer.post('/sign-up').send({
       name: 'Update User',
       email: 'update.user@mail.com',
       password: '123456.sS',
     });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
-    const res = await testServer.put(`/users/${resCreate.body.id}`).send({
-      name: 'Updated User',
-      email: 'updated.user@mail.com',
+    const signIn = await testServer.post('/sign-in').send({
+      email: 'update.user@mail.com',
       password: '123456.sS',
     });
+    userId = resCreate.body.id;
+    accessToken = signIn.body.accessToken;
+  });
+  it('success', async () => {
+    const res = await testServer
+      .put(`/users/${userId}`)
+      .send({
+        name: 'Updated User',
+        email: 'updated.user@mail.com',
+        password: '123456.sS',
+      })
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);
     expect(res.body).toStrictEqual({});
   });
   it('with email already registered', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
-      name: 'Update User',
-      email: 'update.user@mail.com',
-      password: '123456.sS',
-    });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
-    const resCreateNew = await testServer.post('/sign-up').send({
-      name: 'Update User',
-      email: 'update.user.same@mail.com',
-      password: '123456.sS',
-    });
+    const resCreateNew = await testServer
+      .post('/sign-up')
+      .send({
+        name: 'Update User',
+        email: 'update.user.same@mail.com',
+        password: '123456.sS',
+      })
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(resCreateNew.statusCode).toBe(StatusCodes.CREATED);
 
-    const res = await testServer.put(`/users/${resCreate.body.id}`).send({
-      name: 'Updated User',
-      email: 'update.user.same@mail.com',
-      password: '123456.sS',
-    });
+    const res = await testServer
+      .put(`/users/${userId}`)
+      .send({
+        name: 'Updated User',
+        email: 'update.user.same@mail.com',
+        password: '123456.sS',
+      })
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
   it('string param', async () => {
-    const res = await testServer.get('/users/string');
+    const res = await testServer
+      .get('/users/string')
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);
   });
   it('not found', async () => {
-    const res = await testServer.get('/users/99999');
+    const res = await testServer
+      .get('/users/99999')
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(res.body).toHaveProperty('errors');
     expect(res.body.errors.length).toBe(1);

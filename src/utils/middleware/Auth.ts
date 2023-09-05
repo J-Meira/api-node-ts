@@ -4,7 +4,6 @@ import { handleErrors } from './HandleErrors';
 import { StatusError } from '../../models';
 
 const user: RequestHandler = async (req, res, next) => {
-  console.log(req.headers);
   const { authorization } = req.headers;
 
   if (!authorization) {
