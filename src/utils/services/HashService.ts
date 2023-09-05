@@ -12,7 +12,7 @@ const verify = async (value: string, hashValue: string) => {
   return await compare(value, hashValue);
 };
 
-export const HashCrypto = {
+export const HashService = {
   make,
   verify,
 };

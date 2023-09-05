@@ -1,21 +1,24 @@
-import { RequestHandler } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
+
 import { handleErrors } from './HandleErrors';
 import { StatusError } from '../../models';
+import { JWTService } from '../services';
 
-const user: RequestHandler = async (req, res, next) => {
+const userSecret = process.env.SYSTEM_SECRET;
+
+const user = async (req: Request, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
-  if (!authorization) {
+  if (!authorization)
     return handleErrors(
       new StatusError('Without token', StatusCodes.UNAUTHORIZED),
       res,
     );
-  }
 
   const [type, token] = authorization.split(' ');
 
-  if (type !== 'Bearer') {
+  if (type !== 'Bearer')
     return handleErrors(
       new StatusError(
         'invalid authorization type',
@@ -23,14 +26,24 @@ const user: RequestHandler = async (req, res, next) => {
       ),
       res,
     );
-  }
-  if (!token || token !== 'test.test.test') {
+
+  if (!userSecret)
+    return handleErrors(
+      new StatusError(
+        'Internal server error',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      ),
+      res,
+    );
+
+  const decoded = JWTService.verify(token, userSecret);
+  if (decoded === 'INVALID_TOKEN')
     return handleErrors(
       new StatusError('invalid token', StatusCodes.UNAUTHORIZED),
       res,
     );
-  }
 
+  req.headers.decoded = JSON.stringify(decoded);
   return next();
 };
 

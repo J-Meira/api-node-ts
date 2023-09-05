@@ -119,6 +119,7 @@ describe('sign.in', () => {
     });
     expect(res.statusCode).toBe(StatusCodes.OK);
     expect(res.body).toHaveProperty('accessToken');
+    expect(res.body).toHaveProperty('expiresIn');
   });
   it('without email', async () => {
     const res = await testServer.post('/sign-in').send({

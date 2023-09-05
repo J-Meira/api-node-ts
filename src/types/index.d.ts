@@ -4,6 +4,7 @@ export * from './CreateRDTO';
 export * from './Errors';
 export * from './GetAllQuery';
 export * from './IdParam';
+export * from './JWTService';
 export * from './Knex';
 export * from './Users';
 export * from './Validation';

@@ -19,7 +19,13 @@ import {
   idParamSchema,
   signInSchema,
 } from '../utils/schemas';
-import { HashCrypto } from '../utils/services';
+import {
+  ExpireInService,
+  HashService,
+  JWTService,
+} from '../utils/services';
+
+const userSecret = process.env.SYSTEM_SECRET;
 
 const handleIdParams = (res: Response) =>
   handleErrors(
@@ -108,15 +114,15 @@ const signInValidation = validation({
 const signIn = async (req: Request<{}, {}, ISignInDTO>, res: Response) => {
   const { email, password } = req.body;
 
-  const result = await UsersProvider.getByEmail(email);
+  const user = await UsersProvider.getByEmail(email);
 
-  if (result instanceof StatusError) {
-    return handleErrors(result, res);
+  if (user instanceof StatusError) {
+    return handleErrors(user, res);
   }
 
-  const passwordTest = await HashCrypto.verify(password, result.password);
+  const passwordTest = await HashService.verify(password, user.password);
 
-  if (!passwordTest) {
+  if (!passwordTest)
     return handleErrors(
       new StatusError(
         'email or password are not valid',
@@ -124,11 +130,27 @@ const signIn = async (req: Request<{}, {}, ISignInDTO>, res: Response) => {
       ),
       res,
     );
-  } else {
-    return res
-      .status(StatusCodes.OK)
-      .json({ accessToken: 'test.test.test' });
-  }
+
+  if (!userSecret)
+    return handleErrors(
+      new StatusError(
+        'Internal server error',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      ),
+      res,
+    );
+
+  const expiresIn = ExpireInService.get(24);
+  const accessToken = JWTService.make(
+    {
+      uid: user.id,
+      name: user.name,
+      expiresIn,
+    },
+    userSecret,
+    '24h',
+  );
+  return res.status(StatusCodes.OK).json({ accessToken, expiresIn });
 };
 
 export const UsersController = {

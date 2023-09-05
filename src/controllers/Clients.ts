@@ -22,6 +22,8 @@ const handleIdParams = (res: Response) =>
 const createValidation = validation({ body: clientSchema });
 
 const create = async (req: Request<{}, {}, IClientDTO>, res: Response) => {
+  // console.log(req.headers.decoded);
+
   const result = await ClientsProvider.create(req.body);
   if (result instanceof StatusError) {
     return handleErrors(result, res);
