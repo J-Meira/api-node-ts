@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { CitiesController, ClientsController } from '../../controllers';
 import { UsersController } from '../../controllers/Users';
+import { Auth } from '../../utils/middleware';
 
 const router = Router();
 
@@ -12,30 +13,35 @@ router.get('/', (_, res) => res.status(StatusCodes.OK).send('Hi!'));
 /* cities start */
 router.post(
   '/cities',
+  Auth.user,
   CitiesController.createValidation,
   CitiesController.create,
 );
 
 router.get(
   '/cities',
+  Auth.user,
   CitiesController.getAllValidation,
   CitiesController.getAll,
 );
 
 router.get(
   '/cities/:id',
+  Auth.user,
   CitiesController.getByIdValidation,
   CitiesController.getById,
 );
 
 router.delete(
   '/cities/:id',
+  Auth.user,
   CitiesController.deleteByIdValidation,
   CitiesController.deleteById,
 );
 
 router.put(
   '/cities/:id',
+  Auth.user,
   CitiesController.updateByIdValidation,
   CitiesController.updateById,
 );
@@ -44,30 +50,35 @@ router.put(
 /* clients start */
 router.post(
   '/clients',
+  Auth.user,
   ClientsController.createValidation,
   ClientsController.create,
 );
 
 router.get(
   '/clients',
+  Auth.user,
   ClientsController.getAllValidation,
   ClientsController.getAll,
 );
 
 router.get(
   '/clients/:id',
+  Auth.user,
   ClientsController.getByIdValidation,
   ClientsController.getById,
 );
 
 router.delete(
   '/clients/:id',
+  Auth.user,
   ClientsController.deleteByIdValidation,
   ClientsController.deleteById,
 );
 
 router.put(
   '/clients/:id',
+  Auth.user,
   ClientsController.updateByIdValidation,
   ClientsController.updateById,
 );
@@ -90,18 +101,21 @@ router.post(
 /* users start */
 router.get(
   '/users',
+  Auth.user,
   UsersController.getAllValidation,
   UsersController.getAll,
 );
 
 router.get(
   '/users/:id',
+  Auth.user,
   UsersController.getByIdValidation,
   UsersController.getById,
 );
 
 router.put(
   '/users/:id',
+  Auth.user,
   UsersController.updateByIdValidation,
   UsersController.updateById,
 );
