@@ -27,6 +27,16 @@ describe('clients.create', () => {
     cityId = resCity.body.id;
   });
 
+  it('without token', async () => {
+    const res = await testServer.post('/clients').send({
+      name: 'Create Client',
+      email: 'create.client@mail.com',
+      cityId,
+    });
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const res = await testServer
       .post('/clients')
@@ -188,6 +198,12 @@ describe('clients.delete', () => {
     cityId = resCity.body.id;
   });
 
+  it('without token', async () => {
+    const res = await testServer.delete('/clients/1');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/clients')
@@ -255,6 +271,12 @@ describe('clients.getAll', () => {
     cityId = resCity.body.id;
   });
 
+  it('without token', async () => {
+    const res = await testServer.get('/clients');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/clients')
@@ -303,6 +325,12 @@ describe('clients.getById', () => {
     cityId = resCity.body.id;
   });
 
+  it('without token', async () => {
+    const res = await testServer.get('/clients/1');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/clients')
@@ -365,6 +393,16 @@ describe('clients.updateById', () => {
     cityId = resCity.body.id;
   });
 
+  it('without token', async () => {
+    const res = await testServer.put('/clients/1').send({
+      name: 'Create Client',
+      email: 'create.client@mail.com',
+      cityId,
+    });
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/clients')

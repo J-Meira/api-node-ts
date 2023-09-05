@@ -164,21 +164,27 @@ describe('sign.in', () => {
 });
 
 describe('users.getAll', () => {
-  it('success', async () => {
-    const resCreate = await testServer.post('/sign-up').send({
+  let accessToken: string | undefined = undefined;
+  beforeAll(async () => {
+    await testServer.post('/sign-up').send({
       name: 'Get All User',
       email: 'get.all.user@mail.com',
       password: '123456.sS',
     });
-    expect(resCreate.statusCode).toBe(StatusCodes.CREATED);
-
-    let accessToken: string | undefined = undefined;
     const signIn = await testServer.post('/sign-in').send({
       email: 'get.all.user@mail.com',
       password: '123456.sS',
     });
     accessToken = signIn.body.accessToken;
+  });
 
+  it('without token', async () => {
+    const res = await testServer.get('/users');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
+  it('success', async () => {
     const res = await testServer
       .get('/users')
       .set('Authorization', `Bearer ${accessToken}`);
@@ -205,6 +211,13 @@ describe('users.getById', () => {
     });
     userId = resCreate.body.id;
     accessToken = signIn.body.accessToken;
+  });
+
+  it('without token', async () => {
+    const res = await testServer.get('/users/1');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
   });
   it('success', async () => {
     const res = await testServer
@@ -246,6 +259,17 @@ describe('users.updateById', () => {
     });
     userId = resCreate.body.id;
     accessToken = signIn.body.accessToken;
+  });
+
+  it('without token', async () => {
+    const res = await testServer.put('/users/1').send({
+      name: 'Updated User',
+      email: 'updated.user@mail.com',
+      password: '123456.sS',
+    });
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
   });
   it('success', async () => {
     const res = await testServer

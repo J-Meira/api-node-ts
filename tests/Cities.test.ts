@@ -16,6 +16,15 @@ describe('cities.create', () => {
     accessToken = signIn.body.accessToken;
   });
 
+  it('without token', async () => {
+    const res = await testServer.post('/cities').send({
+      name: 'Create City',
+      stateId: 1,
+    });
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const res = await testServer
       .post('/cities')
@@ -91,6 +100,12 @@ describe('cities.delete', () => {
     accessToken = signIn.body.accessToken;
   });
 
+  it('without token', async () => {
+    const res = await testServer.delete('/cities/1');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/cities')
@@ -146,6 +161,12 @@ describe('cities.getAll', () => {
     accessToken = signIn.body.accessToken;
   });
 
+  it('without token', async () => {
+    const res = await testServer.get('/cities');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/cities')
@@ -182,6 +203,12 @@ describe('cities.getById', () => {
     accessToken = signIn.body.accessToken;
   });
 
+  it('without token', async () => {
+    const res = await testServer.get('/cities/1');
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/cities')
@@ -232,6 +259,15 @@ describe('cities.updateById', () => {
     accessToken = signIn.body.accessToken;
   });
 
+  it('without token', async () => {
+    const res = await testServer.put('/cities/1').send({
+      name: 'Update City',
+      stateId: 1,
+    });
+    expect(res.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors.length).toBe(1);
+  });
   it('success', async () => {
     const resCreate = await testServer
       .post('/cities')
